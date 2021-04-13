@@ -1,13 +1,13 @@
 <script>
   let counter = 0;
   const addToCounter = () => {
-    counter += 1;
+    counter += 1
   }
 </script>
 
 
 <div class="container">
-  <h1>Welcome to Meteor!</h1>
+  <h1>Welcome to Meteor</h1>
 
   <button on:click={addToCounter}>Click Me</button>
   <p>You've pressed the button {counter} times.</p>
