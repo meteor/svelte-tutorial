@@ -19,10 +19,10 @@ npm install --global meteor
 
 ## 1.2: Create Meteor Project
 
-The easiest way to set up Meteor with React is by using the command `meteor create` with the option `--blaze` and your project name:
+The easiest way to set up Meteor with React is by using the command `meteor create` with the option `--svelte` and your project name:
 
 ```
-meteor create --blaze simple-todos-blaze
+meteor create --svelte simple-todos-blaze
 ```
 
 After this, Meteor will create all the necessary files for you. 
@@ -75,89 +75,68 @@ node_modules/         # packages installed by npm
 
 To start working on our todo list app, let's replace the code of the default starter app with the code below. From there, we'll talk about what it does.
 
-First, let's remove the body from our HTML entry-point (leaving just the `<head>` tag):
+First, let's change the `<div/>` inside our file `App.svelte` inside the folder `imports/ui`:
+
+`imports/ui/App.svelte`
 
 ```html
-<head>
-  <title>Simple todo</title>
-</head>
+..
+
+<div class="container">
+    <header>
+        <h1>Todo List</h1>
+    </header>
+
+    <ul>
+        {#each getTasks() as task}
+            <Task key={task._id} task={task} />
+        {/each}
+    </ul>
+</div>
 ```
 
-Create a new directory with the name `imports` inside `simple-todos-blaze` folder. Then we create some new files in the `imports/` directory:
+Also, you can create the `<Task />` component. Go ahead and create a new file called `Task.svelte` inside the import folder:
 
-`imports/ui/App.html`
+`imports/ui/Task.svelte`
 
 ```html
-<body>
-    <div class="container">
-        <header>
-            <h1>Todo List</h1>
-        </header>
+<script>
+    export let key;
+    export let task;
+</script>
 
-        <ul>
-            {{#each tasks}}
-                {{> task}}
-            {{/each}}
-        </ul>
-    </div>
-</body>
-
-<template name="task">
-    <li>{{text}}</li>
-</template>
+<li> { task.text }</li>
 ```
 
 Now we need the data to render on this page. 
 
 ## 1.4: Create Sample Tasks
 
-As you are not connecting to your server and your database yet, let's define some sample data which will be used to render a list of tasks. It will be an array of list items, and you can call it `tasks`. Go ahead and create a new file called `App.js` on your file `ui` and type this code on it:
+As you are not connecting to your server and your database yet, let's define some sample data which will be used to render a list of tasks. It will be an array of list items, and you can call it `tasks`. Go ahead and change the `<script/>` tag inside the `App.svelte` file to the following code:
 
-`imports/ui/App.js`
+`imports/ui/App.svelte`
 
-``` js
-import { Template } from 'meteor/templating';
- 
-import './App.html';
- 
-Template.app.helpers({
-  tasks: [
-    { text: 'This is task 1' },
-    { text: 'This is task 2' },
-    { text: 'This is task 3' },
-  ],
-});
+```html
+<script>
+    import Task from './Task.svelte';
+
+    const getTasks = () => ([
+        { _id: 'task_1', text: 'This is task 1' },
+        { _id: 'task_2', text: 'This is task 2' },
+        { _id: 'task_3', text: 'This is task 3' },
+    ])
+</script>
+
+...
 ```
 
 You can put anything as your `text` property on each task. Be creative!
 
+In Svelte, single file components are created with the `.svelte` file extension and are comprised of three sections, the script section, the markup (HTML) section, and the style section. Within the script section you will write Javascript that runs when the component instance is created. The Svelte component format is fully explained in the [Svelte Guide](https://svelte.dev/docs#Component_format).
 
-Inside our front-end JavaScript entry-point file, `client/main.js`, we'll remove the rest of the code and import `imports/ui/App.js`:
+You can read more about how to structure your code in the [Application Structure article](https://guide.meteor.com/structure.html) of the Meteor Guide.
 
-``` js
-import '../imports/ui/App.js';
-```
-
-You can read more about how imports work and how to structure your code in the [Application Structure article](https://guide.meteor.com/structure.html) of the Meteor Guide.
-
-Now let's find out what all these bits of code are doing!
-
-## 1.5: Rendering Data
-
-Meteor parses HTML files and identifies three top-level tags: `<head>`, `<body>`, and `<template>`.
-
-Everything inside any `<head>` tags is added to the head section of the HTML sent to the client, and everything inside `<body>` tags is added to the body section, just like in a regular HTML file.
-
-Everything inside `<template>` tags is compiled into Meteor templates, which can be included inside HTML with `{% raw %}{{> templateName}}{% endraw %}` or referenced in your JavaScript with `Template.templateName`.
-
-Also, the `body` section can be referenced in your JavaScript with `Template.body`. Think of it as a special "parent" template, that can include the other child templates.
-
-All of the code in your HTML files will be compiled with [Meteor's Spacebars compiler](http://blazejs.org/api/spacebars.html). Spacebars uses statements surrounded by double curly braces such as `{% raw %}{{#each}}{% endraw %}` and `{% raw %}{{#if}}{% endraw %}` to let you add logic and data to your views.
-
-You can pass data into templates from your JavaScript code by defining helpers. In the code above, we defined a helper called `tasks` on `Template.body` that returns an array. Inside the body tag of the HTML, we can use `{% raw %}{{#each tasks}}{% endraw %}` to iterate over the array and insert a `task` template for each value. Inside the `#each` block, we can display the `text` property of each array item using `{% raw %}{{text}}{% endraw %}`.
-
-
-## 1.6 Mobile look
+## 1.5 Mobile look
 
 Let's see how your app is looking on Mobile. You can simulate a mobile environment by `right clicking` your app in the browser (we are assuming you are using Google Chrome, as it is the most popular browser) and then `inspect`, this will open a new window inside your browser called `Dev Tools`. In the `Dev Tools` you have a small icon showing a Mobile device and a Tablet:
 
@@ -192,7 +171,18 @@ Now your app should look like this:
 
 <img width="200px" src="/simple-todos/assets/step01-mobile-with-meta-tags.png"/>
 
+## 1.6 Hot Module Replacement
 
-> Review: you can check how your code should look in the end of this step [here](https://github.com/meteor/blaze-tutorial/tree/master/src/simple-todos/step01) 
+Meteor by default when using Svelte is already adding for you a package called `hot-module-replacement`. This package updates the javascript modules in a running app that were modified during a rebuild. Reduces the feedback cycle while developing, so you can view and test changes quicker (it even updates the app before the build has finished).
+
+You should also add the package `dev-error-overlay` at this point, so you can see the errors in your web browser.
+
+```shell
+meteor add dev-error-overlay
+```
+
+You can try to make some mistakes and then you are going to see the errors in the browser and not only in the console.
+
+> Review: you can check how your code should look in the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step01) 
 
 In the next step we are going to work with our MongoDB database to be able to store our tasks.

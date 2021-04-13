@@ -1,22 +1,22 @@
 <script>
-  let counter = 0;
-  const addToCounter = () => {
-    counter += 1
-  }
+  import Task from './Task.svelte';
+
+  const getTasks = () => ([
+    { _id: 'task_1', text: 'This is task 1' },
+    { _id: 'task_2', text: 'This is task 2' },
+    { _id: 'task_3', text: 'This is task 3' },
+  ])
 </script>
 
 
 <div class="container">
-  <h1>Welcome to Meteor</h1>
+    <header>
+      <h1>Todo List</h1>
+    </header>
 
-  <button on:click={addToCounter}>Click Me</button>
-  <p>You've pressed the button {counter} times.</p>
-
-  <h2>Learn Meteor!</h2>
-  <ul>
-    <li><a href="https://svelte-tutorial.meteor.com" target="_blank">Do the Tutorial</a></li>
-    <li><a href="http://guide.meteor.com" target="_blank">Follow the Guide</a></li>
-    <li><a href="https://docs.meteor.com" target="_blank">Read the Docs</a></li>
-    <li><a href="https://forums.meteor.com" target="_blank">Discussions</a></li>
-  </ul>
+    <ul>
+      {#each getTasks() as task}
+          <Task key={task._id} task={task} />
+      {/each}
+    </ul>
 </div>
