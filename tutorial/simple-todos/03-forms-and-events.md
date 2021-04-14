@@ -10,47 +10,44 @@ One of the main ways in which a user can insert or edit data in a website is thr
 
 First we need to create a simple form component to encapsulate our logic.
 
-Create a new template called `form` inside the `App.html` file and inside of the new template we'll add an input field and a button:
+Create a `form` element inside a new file called `TaskForm.svelte` file, and add an input field and a button:
 
-`imports/ui/App.html`
+`imports/ui/TaskForm.svelte`
 ```html
 
-...
+<form class="task-form">
+    <input type="text" name="text" placeholder="Type to add new tasks" />
+    <button type="submit">Add Task</button>
+</form>
 
-<template name="form">
-    <form class="task-form">
-        <input type="text" name="text" placeholder="Type to add new tasks" />
-        <button type="submit">Add Task</button>
-    </form>
-</template>
 ```
 
 ## 3.2: Update the body element
 
-Then we can simply add this to our `body` component above your list of tasks:
+Then we can simply add this to our `App.svelte` component but first, importing it inside the `<script/>` tag and then using it inside our `<div />`:
 
-`imports/ui/App.html`
+`imports/ui/App.svelte`
 ```html
 
-...
+<script>
+    import { TasksCollection } from '../api/TasksCollection';
+    import Task from './Task.svelte';
+    import TaskForm from './TaskForm.svelte';
+    ..
+</script>
 
-<body>
-    <div class="container">
-        <header>
-            <h1>Todo List</h1>
-        </header>
 
-        {{> form }}
+<div class="container">
+    <header>
+        <h1>Todo List</h1>
+    </header>
 
-        <ul>
-            {{#each tasks}}
-                {{> task}}
-            {{/each}}
-        </ul>
-    </div>
-</body>
+    <TaskForm />
+    
+    ..
+    
+</div>
 
-...
 
 ```
 
