@@ -1,11 +1,8 @@
 <script>
   import Task from './Task.svelte';
+  import { TasksCollection } from '../api/TasksCollection';
 
-  const getTasks = () => ([
-    { _id: 'task_1', text: 'This is task 1' },
-    { _id: 'task_2', text: 'This is task 2' },
-    { _id: 'task_3', text: 'This is task 3' },
-  ])
+  $m: tasks = TasksCollection.find({}).fetch()
 </script>
 
 
@@ -15,7 +12,7 @@
     </header>
 
     <ul>
-      {#each getTasks() as task}
+      {#each tasks as task}
           <Task key={task._id} task={task} />
       {/each}
     </ul>

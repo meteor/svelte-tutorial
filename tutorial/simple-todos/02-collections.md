@@ -23,7 +23,6 @@ Notice that we stored the file in the `imports/api` directory, which is a place 
 
 You can delete the `links.js` file in this folder as we are not going to use this collection.
 
-> You can read more about app structure and imports/exports [here](http://guide.meteor.com/structure.html).
 
 ## 2.2: Initialize Tasks Collection
 
@@ -63,24 +62,48 @@ So you are importing the `TasksCollection` and adding a few tasks on it over an 
 
 Now comes the fun part, you will render the tasks saved in our database. With Blaze that will be pretty simple to do.  
 
-On your file `App.js`, import the `TasksCollection` file and, instead of return a static array, return the tasks saved in the database:
+On your file `App.svelte`, import the `TasksCollection` file and, instead of return a static array, return the tasks saved in the database. Let's use an extension of the Svelte's [$ reactive statements](https://svelte.dev/docs#3_$_marks_a_statement_as_reactive) feature, to maintain your tasks, called [$m](https://github.com/zodern/melte#tracker-statements):
 
-`imports/ui/App.js`
-```javascript
-import { Template } from 'meteor/templating';
-import { TasksCollection } from "../api/TasksCollection";
-import './App.html';
+`imports/ui/App.svelte`
+```html
+<script>
+  import Task from './Task.svelte';
+  import { TasksCollection } from '../api/TasksCollection';
 
-Template.body.helpers({
-  tasks() {
-    return TasksCollection.find({});
-  },
-});
+  $m: tasks = TasksCollection.find({}).fetch()
+</script>
+
+
+<div class="container">
+  <header>
+    <h1>Todo List</h1>
+  </header>
+
+  <ul>
+    {#each tasks as task}
+        <Task key={task._id} task={task} />
+    {/each}
+  </ul>
+</div>
+
 ```
 
 See how your app should look like now:
 
 <img width="200px" src="/simple-todos/assets/step02-tasks-list.png"/>
+
+
+You can learn more how the [$ reactive statements](https://svelte.dev/docs#3_$_marks_a_statement_as_reactive) on Svelte's documentation. We will use the [$m tracker](https://github.com/zodern/melte#tracker-statements), that internally uses [Tracker.autorun](https://docs.meteor.com/api/tracker.html#Tracker-autorun) that allows you to run a function that depends on reactive data sources, in such a way that if there are changes to the data later, the function will be rerun, which makes our tasks query complete with success.
+
+The `$m` tracker is available to us just because we're using the Svelte compiler `zodern:melte`.
+
+You also have the option of using a package like `rdb:svelte-meteor-data` to access some Meteor functionalities such as `useTracker` (that has the same purpose as `Tracker.autorun`) and instead of using `$m` you could write a code like this:
+
+```js
+import { useTracker } from 'meteor/rdb:svelte-meteor-data';
+
+$: tasks = useTracker(() => Tasks.find({}).fetch());
+```
 
 You can change your data on MongoDB in the server and your app will react and re-render for you.
 
@@ -101,7 +124,7 @@ You can double-click your collection to see the documents stored on it:
 
 But wait, how are my tasks coming from the server to the client? We are going to explain this later in the step about Publications and Subscriptions. What you need to know now is that you are publishing all the data from the database to the client. This will be removed later as we don't want to publish all the data all the time.
 
-> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/blaze-tutorial/tree/master/src/simple-todos/step02) 
+> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step02) 
 
 In the next step we are going to create tasks using a form.
 
