@@ -1,28 +1,47 @@
 <script>
   import { TasksCollection } from '../api/TasksCollection';
-  import { useTracker } from 'meteor/rdb:svelte-meteor-data';
+  import { Meteor } from 'meteor/meteor';
   import Task from './Task.svelte';
   import TaskForm from './TaskForm.svelte';
+  import LoginForm from './LoginForm.svelte';
 
   let hideCompleted = false;
 
   const hideCompletedFilter = { isChecked: { $ne: true } };
 
-  $m:tasks = TasksCollection.find(hideCompleted ? hideCompletedFilter : {}, { sort: { createdAt: -1 } }).fetch()
 
   let incompleteCount;
   let pendingTasksTitle = '';
+  let tasks = [];
+  let user = null;
 
-  $: {
-    incompleteCount = useTracker(() => TasksCollection.find(hideCompletedFilter).count());
+  $m: {
+    user = Meteor.user();
+
+    const userFilter = user ? { userId: user._id } : {};
+    const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
+
+
+    tasks = user
+      ? TasksCollection.find(
+            hideCompleted ? pendingOnlyFilter : userFilter,
+            { sort: { createdAt: -1 } }
+        ).fetch()
+      : [];
+
+    incompleteCount = user
+        ? TasksCollection.find(pendingOnlyFilter).count()
+        : 0;
+
     pendingTasksTitle = `${
-      $incompleteCount ? ` (${$incompleteCount})` : ''
+      incompleteCount ? ` (${incompleteCount})` : ''
     }`;
   }
 
-  const setHideCompleted = value =>  {
+  const setHideCompleted = value => {
     hideCompleted = value;
-  }
+  };
+  const logout = () => Meteor.logout();
 </script>
 
 
@@ -36,16 +55,25 @@
     </header>
 
     <div class="main">
-        <TaskForm />
-        <div class="filter">
-            <button on:click={() => setHideCompleted(!hideCompleted)}>
-                {hideCompleted ? 'Show All' : 'Hide Completed'}
-            </button>
-        </div>
-        <ul class="tasks">
-          {#each tasks as task}
-              <Task key={task._id} task={task} />
-          {/each}
-        </ul>
+        {#if user}
+            <div class="user" on:click={logout}>
+                {user.username} 🚪
+            </div>
+
+            <TaskForm user={user}/>
+
+            <div class="filter">
+                <button on:click={() => setHideCompleted(!hideCompleted)}>
+                    {hideCompleted ? 'Show All' : 'Hide Completed'}
+                </button>
+            </div>
+            <ul class="tasks">
+              {#each tasks as task}
+                  <Task key={task._id} task={task} />
+              {/each}
+            </ul>
+        {:else}
+            <LoginForm />
+        {/if}
     </div>
 </div>

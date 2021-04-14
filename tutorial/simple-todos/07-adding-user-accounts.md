@@ -53,60 +53,50 @@ You should not see anything different in your app UI yet.
 
 You need to provide a way for the users to input the credentials and authenticate, for that we need a form.
 
-Our login form will be pretty simple, just two fields (username and password) and a button. You should use `Meteor.loginWithPassword(username, password);` to authenticate your user with the provided inputs.
+Create a new file called `LoginForm.svelte` and add a form to it. You should use `Meteor.loginWithPassword(username, password);` to authenticate your user with the provided inputs.
 
-`imports/ui/Login.html`
+`imports/ui/LoginForm.svelte`
 
 ```html
-<template name="login">
-    <form class="login-form">
-        <div>
-            <label htmlFor="username">Username</label>
+<script>
+    import { Meteor } from 'meteor/meteor';
 
-            <input
-                    type="text"
-                    placeholder="Username"
-                    name="username"
-                    required
-            />
-        </div>
+    let username = "";
+    let password = "";
 
-        <div>
-            <label htmlFor="password">Password</label>
+    const handleSubmit = () => {
+        Meteor.loginWithPassword(username, password);
+    }
+</script>
 
-            <input
-                    type="password"
-                    placeholder="Password"
-                    name="password"
-                    required
-            />
-        </div>
-        <div>
-            <button type="submit">Log In</button>
-        </div>
-    </form>
-</template>
-```
+<form class="login-form" on:submit|preventDefault={handleSubmit}>
+    <div>
+        <label htmlFor="username">Username</label>
 
-`imports/ui/Login.js`
+        <input
+                type="text"
+                placeholder="Username"
+                name="username"
+                required
+                bind:value={username}
+        />
+    </div>
 
-```js
-import { Meteor } from 'meteor/meteor';
-import { Template } from 'meteor/templating';
-import './Login.html';
+    <div>
+        <label htmlFor="password">Password</label>
 
-Template.login.events({
-  'submit .login-form'(e) {
-    e.preventDefault();
-
-    const target = e.target;
-
-    const username = target.username.value;
-    const password = target.password.value;
-
-    Meteor.loginWithPassword(username, password);
-  }
-});
+        <input
+                type="password"
+                placeholder="Password"
+                name="password"
+                required
+                bind:value={password}
+        />
+    </div>
+    <div>
+        <button type="submit">Log In</button>
+    </div>
+</form>
 
 ```
 
@@ -116,62 +106,46 @@ Ok, now you have a form, let's use it.
 
 Our app should only allow an authenticated user to access its task management features.
 
-We can accomplish that rendering the `Login` from template when we don't have an authenticated user, otherwise we return the form, filter, and list component.
+We can accomplish that rendering the `LoginForm` component when we don’t have an authenticated user, otherwise we return the form, filter, and list component.
 
-To achieve this we will use a conditional test inside our main div on `App.html`: 
+You can get your authenticated user or null from `Meteor.user()`. Then you can verify if you have a logged user, if yes, render the app, otherwise, your render the `LoginForm`:
 
-`imports/ui/App.html`
+`imports/ui/App.svelte`
 
 ```html
-...
-                </div>
+<script>
+    import { TasksCollection } from '../api/TasksCollection';
+    import { Meteor } from 'meteor/meteor';
+    ..
+    let user = null;
+
+    $m: {
+        user = Meteor.user();
+        ..
+    }
+</script>
+
+<div class="app">
+    ..
+    <div class="main">
+        {#if user}
+            <TaskForm user={user}/>
+
+            <div class="filter">
+                <button on:click={() => setHideCompleted(!hideCompleted)}>
+                {hideCompleted ? 'Show All' : 'Hide Completed'}
+                </button>
             </div>
-        </header>
-
-        <div class="main">
-            {{#if isUserLogged}}
-
-                {{> form }}
-
-                <div class="filter">
-                    <button id="hide-completed-button">
-                        {{#if hideCompleted}}
-                                Show All
-                        {{else}}
-                                Hide Completed
-                        {{/if}}
-                    </button>
-                </div>
-
-                <ul class="tasks">
-                    {{#each tasks}}
-                        {{> task}}
-                    {{/each}}
-                </ul>
-            {{else}}
-                {{> login }}
-            {{/if}}
-        </div>
-...
-```
-
-So, as you can see, if the user is logged in, we render the whole app (`isUserLogged`), otherwise, we render the `Login` template. Let's now create our helper `isUserLogged`:
-
-`imports/ui/App.js`
-
-```js
-...
-
-const getUser = () => Meteor.user();
-const isUserLogged = () => !!getUser();
-...
-
-Template.body.helpers({
-  ...,
-  isUserLogged() {
-    return isUserLogged();
-  }
-});
+            <ul class="tasks">
+                {#each tasks as task}
+                <Task key={task._id} task={task} />
+                {/each}
+            </ul>
+        {:else}
+            <LoginForm />
+        {/if}
+    </div>
+</div>
 ```
 
 ## 7.5: Login Form style
@@ -278,71 +252,65 @@ See that we are using a new field called `userId` with our user `_id` field, we 
 
 Now you can filter the tasks in the UI by the authenticated user. Use the user `_id` to add the field `userId` to your Mongo selector when getting the tasks from Mini Mongo.
 
-`imports/ui/App.js`
+`imports/ui/App.svelte`
 
-```js
-...
-const getTasksFilter = () => {
-  const user = getUser();
+```html
+<script>
+    ..
+    $m: {
+        user = Meteor.user();
 
-  const hideCompletedFilter = { isChecked: { $ne: true } };
+        const userFilter = user ? { userId: user._id } : {};
+        const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
 
-  const userFilter = user ? { userId: user._id } : {};
 
-  const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
+        tasks = user
+                ? TasksCollection.find(
+                        hideCompleted ? pendingOnlyFilter : userFilter,
+                        { sort: { createdAt: -1 } }
+                ).fetch()
+                : [];
 
-  return { userFilter, pendingOnlyFilter };
-}
+        incompleteCount = user
+                ? TasksCollection.find(pendingOnlyFilter).count()
+                : 0;
 
-...
-
-Template.body.helpers({
-  tasks() {
-    const instance = Template.instance();
-    const hideCompleted = instance.state.get(HIDE_COMPLETED_STRING);
-
-    const { pendingOnlyFilter, userFilter } = getTasksFilter();
-
-    if (!isUserLogged()) {
-      return [];
+        ..
     }
+</script>
 
-    return TasksCollection.find(hideCompleted ? pendingOnlyFilter : userFilter, {
-      sort: { createdAt: -1 },
-    }).fetch();
-  },
-  ...,
-  incompleteCount() {
-    if (!isUserLogged()) {
-      return '';
-    }
-
-    const { pendingOnlyFilter } = getTasksFilter();
-
-    const incompleteTasksCount = TasksCollection.find(pendingOnlyFilter).count();
-    return incompleteTasksCount ? `(${incompleteTasksCount})` : '';
-  },
-  ...
-});
+<div class="app">
+    ..
+    <div class="main">
+        ..
+            <ul class="tasks">
+                {#each tasks as task}
+                    <Task key={task._id} task={task} />
+                {/each}
+            </ul>
+        ..
+    </div>
+</div>
 ```
 
-Also, update the `insert` call to include the field `userId` when creating a new task: 
+Also update the `insert` call to include the field `userId` in the `TaskForm`. You should pass the user from the `App` component to the `TaskForm`.
 
-`imports/ui/Task.js`
-```js
-...
-Template.form.events({
-  "submit .task-form"(event) {
-   ...
-    TasksCollection.insert({
-      text,
-      userId: getUser()._id,
-      createdAt: new Date(), // current time
-    });
-   ...
-  }
-});
-...
+`imports/ui/TaskForm.svelte`
+```html
+<script>
+    ..
+    export let user = null;
+    ..
+    const handleSubmit = () => {
+        // Insert a task into the collection
+        TasksCollection.insert({
+            text: newTask,
+            createdAt: new Date(), // current time
+            userId: user._id,
+        });
+        ..
+    }
+</script>
 ```
 
 ## 7.8: Log out
@@ -350,44 +318,18 @@ Template.form.events({
 We also can better organize our tasks by showing the username of the owner below our app bar. Let's add a new `div` where the user can click and log out from the app:
 
 
-`imports/ui/App.html`
+`imports/ui/App.svelte`
 
 ```html
-...
-        <div class="main">
-            {{#if isUserLogged}}
-                <div class="user">
-                    {{getUser.username}} 🚪
-                </div>
-                {{> form }}
-
-...
-```
-
-Now, let's create the `getUser` helper and implement the event that will log out the user when they click on this `div`. The log out with Meteor is simply done by calling the function `Meteor.logout()`:
-
-`imports/ui/App.js`
-
-```js
-...
-
-Template.body.events({
-  ...,
-  'click .user'() {
-    Meteor.logout();
-  }
-});
-
-...
-
-Template.body.helpers({
-  ...,
-  getUser() {
-    return getUser();
-  }
-});
-
-...
+..
+<div class="app">
+    ..
+    <div class="main">
+        {#if user}
+            <div class="user" on:click={logout}>
+                {user.username} 🚪
+            </div>
+..
 ```
 
 Remember to style your user name as well.
@@ -412,6 +354,6 @@ Your app should now look like this:
 <img width="200px" src="/simple-todos/assets/step07-login.png"/>
 <img width="200px" src="/simple-todos/assets/step07-logout.png"/>
 
-> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/blaze-tutorial/tree/master/src/simple-todos/step07) 
+> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step07) 
 
 In the next step we are going to start using Methods to only change the data after checking some conditions.

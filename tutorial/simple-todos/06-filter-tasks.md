@@ -96,15 +96,18 @@ You should avoid adding zero to your app bar when there are not pending tasks.
 ```html
 <script>
     import { TasksCollection } from '../api/TasksCollection';
-    import { useTracker } from 'meteor/rdb:svelte-meteor-data';
     ..
     let incompleteCount;
     let pendingTasksTitle = '';
+    let tasks = [];
 
-    $: {
-        incompleteCount = useTracker(() => TasksCollection.find(hideCompletedFilter).count());
+    $m: {
+        tasks = TasksCollection.find(hideCompleted ? hideCompletedFilter : {}, { sort: { createdAt: -1 } }).fetch()
+
+        incompleteCount = TasksCollection.find(hideCompletedFilter).count();
+
         pendingTasksTitle = `${
-                $incompleteCount ? ` (${$incompleteCount})` : ''
+                incompleteCount ? ` (${incompleteCount})` : ''
         }`;
     }
     ..

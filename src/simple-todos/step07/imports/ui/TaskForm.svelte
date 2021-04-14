@@ -1,6 +1,7 @@
 <script>
     import { TasksCollection } from '../api/TasksCollection';
 
+    export let user = null;
     let newTask = '';
 
     const handleSubmit = () => {
@@ -8,6 +9,7 @@
       TasksCollection.insert({
         text: newTask,
         createdAt: new Date(), // current time
+        userId: user._id,
       });
 
       // Clear form
