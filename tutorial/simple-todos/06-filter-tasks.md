@@ -4,84 +4,37 @@ title: "6: Filter tasks"
 
 In this step, you will filter your tasks by status and show the quantity of pending tasks.
 
-## 6.1: ReactiveDict
+## 6.1: Adding button to hide tasks
 
 First you are going to add a button to show or hide the completed tasks from the list.
 
-To keep the state we're going to use the `ReactiveDict`. A ReactiveDict stores an arbitrary set of key-value pairs. Use it to manage the internal state in your components, ie. like the currently selected item in a list. To know more about how `ReactiveDict` works you can click on this [link](https://docs.meteor.com/api/reactive-dict.html), and there you will find everything you need to know and everything you can do with it.
+With Svelte this will be a pretty simple task as we don't have to do much to keep state to the button. Let's add our button:
 
-For now, we just need to install the `reactive-dict` package to our app. Simply run the command below on your app root directory:
-
-```shell script
-meteor add reactive-dict
-```
-
-Then we need to set up a new `ReactiveDict` and attach it to the body template instance (as this is where we'll store the button's state) when it is first created. The best place to create our variables is inside the callback `onCreated` of the template that we want to persist our data. This callback is called as soon as the template renders in the screen:
-
-`imports/ui/App.js`
-
-```js
-import { Template } from 'meteor/templating';
-import { TasksCollection } from "../api/TasksCollection";
-import { ReactiveDict } from 'meteor/reactive-dict';
-
-import './App.html';
-import './Task.js';
-
-
-Template.body.onCreated(function bodyOnCreated() {
-  this.state = new ReactiveDict();
-});
-
-...
-```
-
-Then, we need an event handler to update the `ReactiveDict` variable when the button is clicked. An event handler takes two arguments, the second of which is the same template instance which was this in the onCreated callback. Also create a new constant called `HIDE_COMPLETED_STRING`, below the imports, that will be used throughout the code as the name of the variable we are persisting:
-
-`imports/ui/App.js`
-
-```js
-...
-
-const HIDE_COMPLETED_STRING = "hideCompleted";
-
-...
-
-Template.body.events({
-  "click #hide-completed-button"(event, instance) {
-    const currentHideCompleted = instance.state.get(HIDE_COMPLETED_STRING);
-    instance.state.set(HIDE_COMPLETED_STRING, !currentHideCompleted);
-  }
-});
-
-...
-```
-
-The button in the UI to toggle our state will look something like this:
+`imports/ui/App.svelte`
 
 ```html
-...
+<script>
+    ..
+    let hideCompleted = false;
+    ..
+    const setHideCompleted = value =>  {
+        hideCompleted = value;
+    }
+</script>
 
-</header>
-
-<div class="main">
-    {{> form }}
-
-    <div class="filter">
-        <button id="hide-completed-button">
-            {{#if hideCompleted}}
-                    Show All
-            {{else}}
-                    Hide Completed
-            {{/if}}
-        </button>
+<div class="app">
+..
+    <div class="main">
+        <TaskForm />
+        <div class="filter">
+            <button on:click={() => setHideCompleted(!hideCompleted)}>
+                {hideCompleted ? 'Show All' : 'Hide Completed'}
+            </button>
+        </div>
+        ..
     </div>
 </div>
-
-...
 ```
-
-You may notice we're using for the first time a conditional test, and it's pretty straightforward. You can learn more about the conditional test _if_ [here](https://guide.meteor.com/v1.3/blaze.html#builtin-block-helpers). We're also using a helper called `hideCompleted` that we didn't create yet, but we will shortly.
 
 ## 6.2: Button style
 
@@ -102,30 +55,21 @@ You should add some style to your button so it doesn't look gray and without goo
 
 ## 6.3: Filter Tasks
 
-Now, we need to update `Template.body.helpers`. The code below verifies if the variable `hideCompleted` is set to `true` and if yes, we filter our query just to get task non completed. We also have a new helper called `hideCompleted` that will help us in the UI well we want to know if we're filtering or not:
+Now, if the user wants to see only pending tasks you can add a filter to your selector in the Mini Mongo query, you want to get all the tasks that are not `isChecked` true.
 
-`imports/ui/App.js`
+`imports/ui/App.svelte`
 
-```js
-...
-
-Template.body.helpers({
-  tasks() {
-    const instance = Template.instance();
-    const hideCompleted = instance.state.get(HIDE_COMPLETED_STRING);
-
+```html
+<script>
+    ..
     const hideCompletedFilter = { isChecked: { $ne: true } };
 
-    return TasksCollection.find(hideCompleted ? hideCompletedFilter : {}, {
-      sort: { createdAt: -1 },
-    }).fetch();
-  },
-  hideCompleted() {
-    return Template.instance().state.get(HIDE_COMPLETED_STRING);
-  },
-});
-
-...
+    $m:tasks = TasksCollection.find(
+      hideCompleted ? hideCompletedFilter : {}, { sort: { createdAt: -1 } }
+    ).fetch()
+    ..
+</script>
+..
 ```
 
 ## 6.4: Meteor Dev Tools Extension
@@ -144,39 +88,38 @@ Install it in your Google Chrome browser using this [link](https://chrome.google
 
 ## 6.5: Pending tasks
 
-Update the `header` in order to show the number of pending tasks in the app bar.
+Update the App component in order to show the number of pending tasks in the app bar.
 
-You should avoid adding zero to your app bar when there are no pending tasks.
+You should avoid adding zero to your app bar when there are not pending tasks.
 
-`imports/ui/App.js`
-```js
-...
-
-Template.body.helpers({
-  ...,
-  incompleteCount() {
-    const incompleteTasksCount = TasksCollection.find({ isChecked: { $ne: true } }).count();
-    return incompleteTasksCount ? `(${incompleteTasksCount})` : '';
-  },
-});
-
-...
-```
-
-`imports/ui/App.html`
-
+`imports/ui/App.svelte`
 ```html
-<body>
-    <div class="app">
-        <header>
-            <div class="app-bar">
-                <div class="app-header">
-                    <h1>📝️ To Do List {{incompleteCount}}</h1>
-                </div>
-            </div>
-        </header>
+<script>
+    import { TasksCollection } from '../api/TasksCollection';
+    import { useTracker } from 'meteor/rdb:svelte-meteor-data';
+    ..
+    let incompleteCount;
+    let pendingTasksTitle = '';
 
-...
+    $: {
+        incompleteCount = useTracker(() => TasksCollection.find(hideCompletedFilter).count());
+        pendingTasksTitle = `${
+                $incompleteCount ? ` (${$incompleteCount})` : ''
+        }`;
+    }
+    ..
+</script>
+
+<div class="app">
+    <header>
+        <div class="app-bar">
+            <div class="app-header">
+                <h1>📝️ To Do List {pendingTasksTitle}</h1>
+            </div>
+        </div>
+    </header>
+    ..
+</div>
 ```
 
 Your app should look like this:
@@ -184,6 +127,6 @@ Your app should look like this:
 <img width="200px" src="/simple-todos/assets/step06-all.png"/>
 <img width="200px" src="/simple-todos/assets/step06-filtered.png"/>
 
-> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/blaze-tutorial/tree/master/src/simple-todos/step06) 
+> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step06) 
 
 In the next step we are going to include user access in your app.

@@ -22,3 +22,4 @@ static-html             # Define static page content in .html files
 zodern:melte
 hot-module-replacement
 dev-error-overlay
+rdb:svelte-meteor-data
