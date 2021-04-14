@@ -150,40 +150,38 @@ header {
 
 ## 5.2: Applying styles
 
-Now you need to add some elements around your components. Also, we need to apply our new style to the app using the `class` attribute. All this work will be done inside the file `App.html`:
+Now you need to add some elements around your components. Also, we need to apply our new style to the app using the `class` attribute. All this work will be done inside the file `App.svelte`:
 
-`imports/ui/App.html`
+`imports/ui/App.svelte`
 
 ```html
-  <body>
-      <div class="app">
-          <header>
-              <div class="app-bar">
-                  <div class="app-header">
-                      <h1>📝️ To Do List</h1>
-                  </div>
-              </div>
-          </header>
-  
-          <div class="main">
-              {{> form }}
-  
-              <ul class="tasks">
-                  {{#each tasks}}
-                      {{> task}}
-                  {{/each}}
-              </ul>
-          </div>
-      </div>
-  </body>
+..
+<div class="app">
+    <header>
+        <div class="app-bar">
+            <div class="app-header">
+                <h1>📝️ To Do List</h1>
+            </div>
+        </div>
+    </header>
 
-...
+    <div class="main">
+        <TaskForm />
+
+        <ul class="tasks">
+            {#each tasks as task}
+            <Task key={task._id} task={task} />
+            {/each}
+        </ul>
+    </div>
+</div>
+
 ```
 
 Your app should look like this:
 
 <img width="200px" src="/simple-todos/assets/step05-styles.png"/>
 
-> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/blaze-tutorial/tree/master/src/simple-todos/step05) 
+> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step05) 
 
 In the next step we are going to make this task list more interactive, for example, providing a way to filter tasks.
