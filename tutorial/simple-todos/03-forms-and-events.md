@@ -14,7 +14,6 @@ Create a `form` element inside a new file called `TaskForm.svelte` file, and add
 
 `imports/ui/TaskForm.svelte`
 ```html
-
 <form class="task-form">
     <input type="text" name="text" placeholder="Type to add new tasks" />
     <button type="submit">Add Task</button>
@@ -22,13 +21,13 @@ Create a `form` element inside a new file called `TaskForm.svelte` file, and add
 
 ```
 
-## 3.2: Update the body element
+## 3.2: Update the App
 
-Then we can simply add this to our `App.svelte` component but first, importing it inside the `<script/>` tag and then using it inside our `<div />`:
+Then we can simply add this new form to our `App.svelte` component by first importing it inside the `<script/>` tag and then using it inside our `<div />`:
 
 `imports/ui/App.svelte`
-```html
 
+```html
 <script>
     import { TasksCollection } from '../api/TasksCollection';
     import Task from './Task.svelte';
@@ -53,7 +52,7 @@ Then we can simply add this to our `App.svelte` component but first, importing i
 
 ## 3.3: Update the Stylesheet
 
-You also can style it as you wish. For now, we only need some margin at the top so the form doesn't seem off the mark. Add the CSS class `.task-form`, this needs to be the same name in your `className` attribute in the form component.
+You also can style it as you wish. For now, we only need some margin at the top so the form doesn't seem off the mark. Add the CSS class `.task-form`, this needs to be the same name in your `class` attribute in the form component.
 
 `client/main.css`
 ```css
@@ -64,68 +63,57 @@ You also can style it as you wish. For now, we only need some margin at the top 
 
 ## 3.4: Add Submit Listener
 
-Now we need to add a listener to the `submit` event on the form:
+Now we need to add a listener to the `submit` event on the form and create the `handleSubmit` function that will, in fact, insert our task:
 
-`imports/ui/App.js`
-```js
-...
-  tasks() {
-    return TasksCollection.find({}, { sort: { createdAt: -1 } });
-  },
-});
+`imports/ui/TaskForm.svelte`
 
-Template.form.events({
-  "submit .task-form"(event) {
-    // Prevent default browser form submit
-    event.preventDefault();
+```html
+<script>
+    import { TasksCollection } from '../api/TasksCollection';
 
-    // Get value from form element
-    const target = event.target;
-    const text = target.text.value;
+    let newTask = '';
 
-    // Insert a task into the collection
-    TasksCollection.insert({
-      text,
-      createdAt: new Date(), // current time
-    });
+    const handleSubmit = () => {
+        // Insert a task into the collection
+        TasksCollection.insert({
+            text: newTask,
+            createdAt: new Date(), // current time
+        });
 
-    // Clear form
-    target.text.value = '';
-  }
-})
+        // Clear form
+        newTask = '';
+    }
+</script>
+
+<form class="task-form" on:submit|preventDefault={handleSubmit}>
+    <input
+            type="text"
+            name="text"
+            placeholder="Type to add new tasks"
+            bind:value={newTask}
+    />
+    <button type="submit">Add Task</button>
+</form>
 ```
 
+This form's input tag will have a `bind:value` attribute added to it and this will bind the input's value to the `newTask` property.
+
+Next, the `handleSubmit` method will be added to the `App` component's script section. In order to execute the `handleSubmit` function on our form's submit event we will add the [on:submit|preventDefault](https://svelte.dev/docs#on_element_event) attribute to the form tag:
+
 Also, insert a date `createdAt` in your `task` document, so you know when each task was created.
-
-
-### Attaching events to templates
-
-Event listeners are added to templates in much the same way as helpers are: by calling `Template.templateName.events(...)` with a dictionary. The keys describe the event to listen for, and the values are event handlers that are called when the event happens.
-
-In our case above, we are listening to the `submit` event on any element that matches the CSS selector `.task-form`. When this event is triggered by the user pressing either enter inside the input field, or the submit button, our event handler function is called.
-
-The event handler gets an argument called `event` that has some information about the event that was triggered. In this case `event.target` is our form element, and we can get the value of our input with `event.target.text.value`. You can see all the other properties of the event object by adding a `console.log(event)` and inspecting the object in your browser console.
-
-Finally, in the last line of the event handler, we need to clear the input to prepare for another new task.
 
 ## 3.5: Show Newest Tasks First
 
 All that is left now is to make one final change: we need to show the newest tasks first. We can accomplish this quite quickly by sorting our [Mongo](https://guide.meteor.com/collections.html#mongo-collections) query.
 
-`imports/ui/App.js`
-```js
-...
+`imports/ui/App.svelte`
 
-Template.body.helpers({
-  tasks() {
-    return TasksCollection.find({}, { sort: { createdAt: -1 } });
-  },
-});
-
-Template.form.events({
-
-...
-
+```html
+<script>
+  ..
+  $m: tasks = TasksCollection.find({}, { sort: { createdAt: -1 } }).fetch()
+</script>
+..
 ```
 
 Now your app should look like this:
@@ -134,6 +122,6 @@ Now your app should look like this:
 
 <img width="200px" src="/simple-todos/assets/step03-new-task-on-list.png"/>
 
-> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/blaze-tutorial/tree/master/src/simple-todos/step03) 
+> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step03) 
 
 In the next step we are going to update your tasks state and provide a way for users to remove tasks.

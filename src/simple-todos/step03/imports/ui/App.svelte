@@ -3,7 +3,7 @@
   import Task from './Task.svelte';
   import TaskForm from './TaskForm.svelte';
 
-  $m: tasks = TasksCollection.find({}).fetch()
+  $m: tasks = TasksCollection.find({}, { sort: { createdAt: -1 } }).fetch()
 </script>
 
 
