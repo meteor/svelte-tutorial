@@ -22,3 +22,5 @@ hot-module-replacement
 dev-error-overlay
 rdb:svelte-meteor-data
 accounts-password
+meteortesting:mocha
+quave:testing
