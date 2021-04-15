@@ -1,16 +1,16 @@
-## Meteor Blaze Tutorial
+## Meteor Svelte Tutorial
 
-If you are looking for the tutorial, please go to [https://blaze-tutorial.meteor.com](https://blaze-tutorial.meteor.com) and check it there. 
+If you are looking for the tutorial, please go to [https://svelte-tutorial.meteor.com](https://svelte-tutorial.meteor.com) and check it there. 
 
 This repository is the place to check the code (`src` folder) and to make contributions. 
 
 Read in the tutorial home page where you should ask questions (spoiler: [Forums](https://forums.meteor.com) or [Slack](https://join.slack.com/t/meteor-community/shared_invite/enQtODA0NTU2Nzk5MTA3LWY5NGMxMWRjZDgzYWMyMTEyYTQ3MTcwZmU2YjM5MTY3MjJkZjQ0NWRjOGZlYmIxZjFlYTA5Mjg4OTk3ODRiOTc)).
 
-This is a [hexo](https://hexo.io) static site used to generate the [Meteor Blaze Tutorial Docs](https://blaze-tutorial.meteor.com).
+This is a [hexo](https://hexo.io) static site used to generate the [Meteor Svelte Tutorial Docs](https://svelte-tutorial.meteor.com).
 
 ## Contributing
 
-We'd love your contributions! Please send us Pull Requests or open issues on [github](https://github.com/meteor/blaze-tutorial). Also, read the [contribution guidelines](https://github.com/meteor/docs/blob/master/Contributing.md).
+We'd love your contributions! Please send us Pull Requests or open issues on [github](https://github.com/meteor/svelte-tutorial). Also, read the [contribution guidelines](https://github.com/meteor/docs/blob/master/Contributing.md).
 
 If you are making a larger contribution, you may need to run the site locally:
 
