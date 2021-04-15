@@ -2,7 +2,7 @@
 title: '9: Publications'
 ---
 
-Now that we have moved all of our app's sensitive code into methods, we need to learn about the other half of Meteor's security story. Until now, we have worked assuming the entire database is present on the client, meaning if we call `Tasks.find()` we will get every task in the collection. That's not good if users of our application want to store privacy-sensitive data. We need a way of controlling which data Meteor sends to the client-side database.
+Now that we have moved all of our app's sensitive code into methods, we need to learn about the other half of Meteor's security story. Until now, we have worked assuming the entire database is present on the client, meaning if we call `TasksCollection.find()` we will get every task in the collection. That's not good if users of our application want to store privacy-sensitive data. We need a way of controlling which data Meteor sends to the client-side database.
 
 ## 9.1: autopublish
 
@@ -52,61 +52,62 @@ import '/imports/api/tasksPublications';
 
 From here, we can subscribe to that publication in the client.
 
-As we want to receive changes from this publication we are going to `subscribe` to it inside a `Tracker.autorun`.
+As we want to receive changes from this publication we are going to `subscribe` to it inside the `$m`. Normally you could do this using a `useTracker`, but for us it's not really necessary as we're using the `zodern:melte` compiler.
 
-`Tracker.autorun` run a function now and rerun it later whenever its dependencies change, which is perfect for us to know when our data is ready to be displayed to the user. You can learn more about the package `tracker` [here](https://docs.meteor.com/api/tracker.html).
+`imports/ui/App.svelte`
 
-`imports/ui/App.js`
+```html
+<script>
+    ..
+    let isLoading = true;
+    const handler = Meteor.subscribe('tasks');
 
-```js
-...
-const IS_LOADING_STRING = "isLoading";
-...
+    $m: {
+        user = Meteor.user();
 
-Template.body.onCreated(function bodyOnCreated() {
-  this.state = new ReactiveDict();
+        if (user) {
 
-  const handler = Meteor.subscribe('tasks');
-  Tracker.autorun(() => {
-    this.state.set(IS_LOADING_STRING, !handler.ready());
-  });
-});
+            isLoading = !handler.ready();
 
-...
+            const userFilter = { userId: user._id };
+            const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
 
-Template.body.helpers({
-  ...,
-  isLoading() {
-    const instance = Template.instance();
-    return instance.state.get(IS_LOADING_STRING);
-  }
-});
 
-...
+            tasks = TasksCollection.find(
+                    hideCompleted ? pendingOnlyFilter : userFilter,
+                    { sort: { createdAt: -1 } }
+            ).fetch();
+
+            incompleteCount = TasksCollection.find(pendingOnlyFilter).count();
+
+            pendingTasksTitle = `${
+                    incompleteCount ? ` (${incompleteCount})` : ''
+            }`;
+        }
+    }
+    ..
+</script>
+..
 ```
 
 ## 9.4: Loading state
 
-Now we can show to the user when the data is loading. Let's use our new helper to show this:
+You should also add a loading state for your app, that means, while the subscription data is not ready you should inform this to your user. To discover if the subscription is ready or not you should get the return of the `subscribe` call, it is an object with the subscription state including the `ready` function that will return a `boolean`.
 
-`imports/ui/App.html`
+`imports/ui/App.svelte`
 
 ```html
-...
-                <div class="filter">
-                    <button id="hide-completed-button">
-                        {{#if hideCompleted}}
-                                Show All
-                        {{else}}
-                                Hide Completed
-                        {{/if}}
-                    </button>
-                </div>
-
-                {{#if isLoading}}
-                    <div class="loading">loading...</div>
-                {{/if}}
-...
+..
+        <div class="filter">
+            <button on:click={() => setHideCompleted(!hideCompleted)}>
+            {hideCompleted ? 'Show All' : 'Hide Completed'}
+            </button>
+        </div>
+        
+        {#if isLoading}
+            <div class="loading">loading...</div>
+        {/if}
+..
 ```
 
 Let's style this loading a little as well:
@@ -181,6 +182,6 @@ Why this is important if we are not returning tasks from other users in the clie
 
 This is important because anyone can call Meteor `Methods` using the browser `console`. You can test this using your DevTools console tab and then type and hit enter: `Meteor.call('tasks.remove', 'xtPTsNECC3KPuMnDu');`. If you remove the validation from your remove Method and you pass one valid task `_id` from your database you will be able to remove it.
 
-> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/blaze-tutorial/tree/master/src/simple-todos/step09) 
+> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step09) 
 
 In the next step we are going to run the app on mobile environment as a Native app.

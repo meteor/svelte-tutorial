@@ -14,28 +14,31 @@
   let pendingTasksTitle = '';
   let tasks = [];
   let user = null;
+  let isLoading = true;
 
+  const handler = Meteor.subscribe('tasks');
   $m: {
     user = Meteor.user();
 
-    const userFilter = user ? { userId: user._id } : {};
-    const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
+    if (user) {
+
+        isLoading = !handler.ready();
+
+        const userFilter = { userId: user._id };
+        const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
 
 
-    tasks = user
-      ? TasksCollection.find(
-            hideCompleted ? pendingOnlyFilter : userFilter,
-            { sort: { createdAt: -1 } }
-        ).fetch()
-      : [];
+        tasks = TasksCollection.find(
+                hideCompleted ? pendingOnlyFilter : userFilter,
+                { sort: { createdAt: -1 } }
+            ).fetch();
 
-    incompleteCount = user
-        ? TasksCollection.find(pendingOnlyFilter).count()
-        : 0;
+        incompleteCount = TasksCollection.find(pendingOnlyFilter).count();
 
-    pendingTasksTitle = `${
-      incompleteCount ? ` (${incompleteCount})` : ''
-    }`;
+        pendingTasksTitle = `${
+          incompleteCount ? ` (${incompleteCount})` : ''
+        }`;
+    }
   }
 
   const setHideCompleted = value => {
@@ -67,6 +70,11 @@
                     {hideCompleted ? 'Show All' : 'Hide Completed'}
                 </button>
             </div>
+
+            {#if isLoading}
+                <div class="loading">loading...</div>
+            {/if}
+
             <ul class="tasks">
               {#each tasks as task}
                   <Task key={task._id} task={task} />
