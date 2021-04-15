@@ -53,6 +53,7 @@ Inside Methods you have a few special properties ready to be used on `this` obje
 
 `imports/api/tasksMethods.js`
 ```js
+import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { TasksCollection } from './TasksCollection';
  
@@ -66,7 +67,7 @@ Meteor.methods({
  
     TasksCollection.insert({
       text,
-      createdAt: new Date,
+      createdAt: new Date(),
       userId: this.userId,
     })
   },
@@ -117,55 +118,60 @@ See that you don't need to get any symbol back from the import, you only need to
 
 As you have defined your methods, you need to update the places we were operating the collection to use them instead.
 
-In the `App.js` file you should call `Meteor.call('tasks.insert', text);` instead of `TasksCollection.insert`.
+In the `TaskForm` file you should call `Meteor.call('tasks.insert', text);` instead of `TasksCollection.insert`. Remember to fix your imports as well.
 
-`imports/ui/App.js`
+`imports/ui/TaskForm.svelte`
 
-```js
-...
+```html
+<script>
+    let newTask = '';
 
-Template.form.events({
-  "submit .task-form"(event) {
-    // Prevent default browser form submit
-    event.preventDefault();
+    const handleSubmit = () => {
+        if (!newTask) return;
 
-    // Get value from form element
-    const target = event.target;
-    const text = target.text.value;
+        Meteor.call('tasks.insert', newTask);
 
-    // Insert a task into the collection
-    Meteor.call('tasks.insert', text);
-
-    // Clear form
-    target.text.value = '';
-  }
-})
+        // Clear form
+        newTask = '';
+    }
+</script>
+..
 ```
 
-In the `Task.js` file you should call `Meteor.call('tasks.setIsChecked', _id, !isChecked);` instead of `TasksCollection.update` and `Meteor.call('tasks.remove', _id)` instead of `TasksCollection.remove`. Remember to remove the `TasksCollection` import as well.
+See that your `TaskForm` component does not need to receive the user anymore as we get the userId in the server, so you can also remove the `export let user` line.
 
-`imports/ui/Task.js`
+In the `Task` file you should call `Meteor.call('tasks.setIsChecked', _id, !isChecked);` instead of `TasksCollection.update` and `Meteor.call('tasks.remove', _id)` instead of `TasksCollection.remove`.
 
-```js
-import { Template } from 'meteor/templating';
+Remember to also remove the user property from your `<TaskForm />` when it is called inside the `<App />`:
 
-import './Task.html';
+`imports/ui/Task.svelte`
 
-Template.task.events({
-  'click .toggle-checked'() {
-    Meteor.call('tasks.setIsChecked', this._id, !this.isChecked);
-  },
-  'click .delete'() {
-    Meteor.call('tasks.remove', this._id);
-  },
-});
+```html
+<script>
+    export let key;
+    export let task;
+
+    const toggleChecked = () =>
+            Meteor.call('tasks.setIsChecked', task._id, !task.isChecked);
+
+
+    const deleteThisTask = () => Meteor.call('tasks.remove', task._id);
+</script>
+..
 ```
 
-Now your inputs and buttons will start working again. So what have you gained?
+`imports/ui/App.svelte`
 
-1. When we insert tasks into the database, we can securely verify that the user is authenticated; the `createdAt` field is correct; and the `userId` is legitimate.
-2. We can add extra validation logic to the methods later if we want.
-3. Our client code is more isolated from our database logic. Instead of a lot of stuff happening in our event handlers, we have methods callable from anywhere.
+```html
+..
+<div class="app">
+    ..
+    <div class="main">
+        {#if user}
+            ..   
+            <TaskForm />
+..
+```
 
 ## 8.4: api and db folders
 
@@ -175,7 +181,7 @@ This change is not required but it's recommended to keep our names consistent wi
 
 Remember to fix your imports, you have 3 imports to `TasksCollection` in the following files:
 - `imports/api/tasksMethods.js`
-- `imports/ui/App.jsx`
+- `imports/ui/App.svelte`
 - `server/main.js`
 
 they should be changed from `import { TasksCollection } from '/imports/api/TasksCollection';` to `import { TasksCollection } from '/imports/db/TasksCollection';`.
@@ -186,6 +192,6 @@ Your app should look exactly as before as we didn't change anything that is visi
 
 We recommend that you change your `check` calls for wrong types to produce some errors, then you could understand what will happen in these cases as well.
 
-> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/blaze-tutorial/tree/master/src/simple-todos/step08) 
+> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step08) 
 
 In the next step we are going to start using Publications to just publish the data that is necessary on each case.

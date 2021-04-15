@@ -1,5 +1,5 @@
 <script>
-  import { TasksCollection } from '../api/TasksCollection';
+  import { TasksCollection } from '../db/TasksCollection';
   import { Meteor } from 'meteor/meteor';
   import Task from './Task.svelte';
   import TaskForm from './TaskForm.svelte';
@@ -60,7 +60,7 @@
                 {user.username} 🚪
             </div>
 
-            <TaskForm user={user}/>
+            <TaskForm />
 
             <div class="filter">
                 <button on:click={() => setHideCompleted(!hideCompleted)}>
