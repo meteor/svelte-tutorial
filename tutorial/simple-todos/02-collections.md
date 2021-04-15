@@ -60,7 +60,7 @@ So you are importing the `TasksCollection` and adding a few tasks on it over an 
 
 ## 2.3: Render Tasks Collection
 
-Now comes the fun part, you will render the tasks saved in our database. With Blaze that will be pretty simple to do.  
+Now comes the fun part, you will render the tasks saved in our database. With Svelte that will be pretty simple to do.  
 
 On your file `App.svelte`, import the `TasksCollection` file and, instead of return a static array, return the tasks saved in the database. Let's use an extension of the Svelte's [$ reactive statements](https://svelte.dev/docs#3_$_marks_a_statement_as_reactive) feature, to maintain your tasks, called [$m](https://github.com/zodern/melte#tracker-statements):
 
