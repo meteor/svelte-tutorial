@@ -1,13 +1,13 @@
-title: Meteor Blaze Tutorial
-subtitle: Blaze Tutorial
+title: Meteor Svelte Tutorial
+subtitle: Svelte Tutorial
 versions:
   - '1'
 versioned-netlify-redirects:
-  netlify_site_id: meteor-blaze-tutorial
+  netlify_site_id: meteor-svelte-tutorial
 
 logo:
   title:
-  subtitle: Blaze Tutorial
+  subtitle: Svelte Tutorial
 
 sidebar_categories:
   null:
@@ -28,9 +28,9 @@ sidebar_categories:
     - simple-todos/11-testing
     - simple-todos/12-deploying
     - simple-todos/13-next-steps
-github_repo: 'meteor/blaze-tutorial'
+github_repo: 'meteor/svelte-tutorial'
 
-url: http://blaze-tutorial.meteor.com/
+url: http://svelte-tutorial.meteor.com/
 root: /
 
 source_dir: tutorial
