@@ -30,7 +30,6 @@ Meteor.methods({
       throw new Meteor.Error('Access denied.');
     }
 
-
     TasksCollection.remove(taskId);
   },
 
@@ -47,7 +46,6 @@ Meteor.methods({
     if (!task) {
       throw new Meteor.Error('Access denied.');
     }
-
 
     TasksCollection.update(taskId, {
       $set: {
