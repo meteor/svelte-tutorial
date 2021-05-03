@@ -6,9 +6,9 @@ Up until now you have only inserted documents into our collection. Let's take a 
 
 ## 4.1: Add Checkbox
 
-First, you need to add a `checkbox` element to your `TaskForm` component:
+First, you need to add a `checkbox` element to your `Task` component:
 
-`imports/ui/TaskForm.svelte`
+`imports/ui/Task.svelte`
 
 ```html
 <li>
@@ -26,7 +26,7 @@ First, you need to add a `checkbox` element to your `TaskForm` component:
 
 Now you can update your task document by toggling its `isChecked` field.
 
-`imports/ui/TaskForm.svelte`
+`imports/ui/Task.svelte`
 
 ```html
 <script>
