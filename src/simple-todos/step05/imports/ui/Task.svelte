@@ -1,7 +1,6 @@
 <script>
   import { TasksCollection } from '../api/TasksCollection';
 
-  export let key;
   export let task;
 
   const toggleChecked = () => {

@@ -1,5 +1,4 @@
 <script>
-  export let key;
   export let task;
 
   const toggleChecked = () =>
