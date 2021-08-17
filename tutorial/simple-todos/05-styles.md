@@ -169,8 +169,8 @@ Now you need to add some elements around your components. Also, we need to apply
         <TaskForm />
 
         <ul class="tasks">
-            {#each tasks as task}
-            <Task key={task._id} task={task} />
+            {#each tasks as task (task._id)}
+                <Task task={task} />
             {/each}
         </ul>
     </div>
