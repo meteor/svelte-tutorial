@@ -101,7 +101,6 @@ Also, you can create the `<Task />` component. Go ahead and create a new file ca
 
 ```html
 <script>
-    export let key;
     export let task;
 </script>
 

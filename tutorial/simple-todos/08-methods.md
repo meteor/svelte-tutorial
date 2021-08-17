@@ -148,7 +148,6 @@ Remember to also remove the user property from your `<TaskForm />` when it is ca
 
 ```html
 <script>
-    export let key;
     export let task;
 
     const toggleChecked = () =>
