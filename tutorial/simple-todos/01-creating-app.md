@@ -19,7 +19,7 @@ npm install --global meteor
 
 ## 1.2: Create Meteor Project
 
-The easiest way to set up Meteor with React is by using the command `meteor create` with the option `--svelte` and your project name:
+The easiest way to set up Meteor with Svelte is by using the command `meteor create` with the option `--svelte` and your project name:
 
 ```
 meteor create --svelte simple-todos-svelte
