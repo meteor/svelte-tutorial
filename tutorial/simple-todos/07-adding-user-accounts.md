@@ -137,8 +137,8 @@ You can get your authenticated user or null from `Meteor.user()`. Then you can v
                 </button>
             </div>
             <ul class="tasks">
-                {#each tasks as task}
-                <Task key={task._id} task={task} />
+                {#each tasks as task (task._id)}
+                    <Task task={task} />
                 {/each}
             </ul>
         {:else}
@@ -284,8 +284,8 @@ Now you can filter the tasks in the UI by the authenticated user. Use the user `
     <div class="main">
         ..
             <ul class="tasks">
-                {#each tasks as task}
-                    <Task key={task._id} task={task} />
+                {#each tasks as task (task._id)}
+                    <Task task={task} />
                 {/each}
             </ul>
         ..

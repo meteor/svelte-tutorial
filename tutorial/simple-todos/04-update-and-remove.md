@@ -32,7 +32,6 @@ Now you can update your task document by toggling its `isChecked` field.
 <script>
   import { TasksCollection } from '../api/TasksCollection';
 
-  export let key;
   export let task;
 
   const toggleChecked = () => {

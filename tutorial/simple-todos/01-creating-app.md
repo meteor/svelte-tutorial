@@ -88,8 +88,8 @@ First, let's change the `<div/>` inside our file `App.svelte` inside the folder 
     </header>
 
     <ul>
-        {#each getTasks() as task}
-            <Task key={task._id} task={task} />
+        {#each getTasks() as task (task._id)}
+            <Task task={task} />
         {/each}
     </ul>
 </div>
@@ -101,7 +101,6 @@ Also, you can create the `<Task />` component. Go ahead and create a new file ca
 
 ```html
 <script>
-    export let key;
     export let task;
 </script>
 

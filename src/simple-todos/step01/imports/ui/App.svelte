@@ -15,8 +15,8 @@
     </header>
 
     <ul>
-      {#each getTasks() as task}
-          <Task key={task._id} task={task} />
+      {#each getTasks() as task (task._id)}
+          <Task task={task} />
       {/each}
     </ul>
 </div>

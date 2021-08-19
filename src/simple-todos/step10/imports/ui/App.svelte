@@ -76,8 +76,8 @@
             {/if}
 
             <ul class="tasks">
-              {#each tasks as task}
-                  <Task key={task._id} task={task} />
+              {#each tasks as task (task._id)}
+                  <Task task={task} />
               {/each}
             </ul>
         {:else}
