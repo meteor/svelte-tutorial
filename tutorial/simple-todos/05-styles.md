@@ -6,6 +6,8 @@ title: '5: Styles'
 
 Our user interface up until this point has not looked the best. Let's change this and add some basic styling which will serve as the foundation for a more professional looking app.
 
+> For the sake of this tutorial all styles are put in a single `client/main.css` file. In a real Svelte application component specific styles are put in a `<style>` tag inside each component. These styles will be scoped to the component only. Read more about it [here](https://svelte.dev/docs#style).
+
 Replace the content of our `client/main.css` file with the one below, the idea is to have an app bar in the top, and a scrollable content including:
 
 - form to add new tasks;
