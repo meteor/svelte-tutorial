@@ -52,9 +52,9 @@ Now your app should look like this:
 
 You can remove tasks with just a few lines of code.
 
-First add a button after the `task.text` in your `TaskForm` component:
+First add a button after the `task.text` in your `Task` component:
 
-`imports/ui/TaskForm.svelte`
+`imports/ui/Task.svelte`
 
 ```html
 ..
@@ -73,7 +73,7 @@ First add a button after the `task.text` in your `TaskForm` component:
 
 Now add the removal logic inside the `<script />` tag. It will be just a new function that is activated when the user clicks in a delete button:
 
-`imports/ui/TaskForm.svelte`
+`imports/ui/Task.svelte`
 
 ```html
 <script>
