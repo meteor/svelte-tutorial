@@ -321,12 +321,24 @@ We also can better organize our tasks by showing the username of the owner below
 `imports/ui/App.svelte`
 
 ```html
+<script>
+  ..
+  function userLogout() {
+    // checking to not repeat logout in case of ui freeze
+		if (user) {
+      // called to logout current user
+			Meteor.logout();
+		}
+	}
+</script>
+
 ..
+
 <div class="app">
     ..
     <div class="main">
         {#if user}
-            <div class="user" on:click={logout}>
+            <div class="user" on:click={userLogout}>
                 {user.username} 🚪
             </div>
 ..
