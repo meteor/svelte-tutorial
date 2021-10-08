@@ -321,6 +321,10 @@ We also can better organize our tasks by showing the username of the owner below
 `imports/ui/App.svelte`
 
 ```html
+<script>
+  ..
+  const logout = () => Meteor.logout();
+</script>
 ..
 <div class="app">
     ..
