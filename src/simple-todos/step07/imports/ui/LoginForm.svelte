@@ -11,7 +11,7 @@
 
 <form class="login-form" on:submit|preventDefault={handleSubmit}>
     <div>
-        <label htmlFor="username">Username</label>
+        <label for="username">Username</label>
 
         <input
                 type="text"
@@ -23,7 +23,7 @@
     </div>
 
     <div>
-        <label htmlFor="password">Password</label>
+        <label for="password">Password</label>
 
         <input
                 type="password"
