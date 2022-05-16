@@ -2,7 +2,7 @@
 title: '9: Publications'
 ---
 
-Now that we have moved all of our app's sensitive code into methods, we need to learn about the other half of Meteor's security story. Until now, we have worked assuming the entire database is present on the client, meaning if we call `TasksCollection.find()` we will get every task in the collection. That's not good if users of our application want to store privacy-sensitive data. We need a way of controlling which data Meteor sends to the client-side database.
+Now that we have moved all of our app's sensitive code into methods, we need to learn about the other half of Meteor's security story. Until now, we have worked assuming the entire database is present on the client, meaning if we call `TasksCollection.find()` we will get every task in the collection. That’s not good if our application users want to store privacy-sensitive data. We need to control which data Meteor sends to the client-side database.
 
 ## 9.1: autopublish
 
@@ -36,7 +36,7 @@ Meteor.publish('tasks', function publishTasks() {
 
 As you are using `this` inside this function you should not use `arrow function` (`=>`) as the arrow function does not provide a context for `this`, you need to use the function in the traditional way, using the `function` keyword.
 
-The last part is to make sure your server is registering this publication, you can do this importing the file, to force the evaluation in the `server/main.js`.
+The last part is to make sure your server is registering this publication, you can do this by importing the file, to force the evaluation in the `server/main.js`.
 
 `server/main.js`
 
