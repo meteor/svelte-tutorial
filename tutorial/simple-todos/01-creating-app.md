@@ -3,7 +3,7 @@ title: "1: Creating the app"
 ---
 
 ## 1.1: Install Meteor
-First we need to install Meteor.
+First, we need to install Meteor.
 
 Install the latest official Meteor release [following the steps in our docs](https://docs.meteor.com/install.html).
 
@@ -44,7 +44,7 @@ meteor run
 
 Don't worry, Meteor will keep your app in sync with all your changes from now on.
 
-Take a quick look in all the files created by Meteor, you don't need to understand them now, but it's good to know where they are.
+Take a quick look at all the files created by Meteor, you don't need to understand them now, but it's good to know where they are.
 
 Here is a small summary of some files created:
 
@@ -170,8 +170,8 @@ You should also add the package `dev-error-overlay` at this point, so you can se
 meteor add dev-error-overlay
 ```
 
-You can try to make some mistakes and then you are going to see the errors in the browser and not only in the console.
+You can try to make some mistakes and then you will see the errors in the browser and not only in the console.
 
-> Review: you can check how your code should look in the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step01) 
+> Review: you can check how your code should look at the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step01) 
 
-In the next step we are going to work with our MongoDB database to be able to store our tasks.
+In the next step, we are going to work with our MongoDB database to be able to store our tasks.

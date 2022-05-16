@@ -122,7 +122,7 @@ You can double-click your collection to see the documents stored on it:
 
 But wait, how are my tasks coming from the server to the client? We are going to explain this later in the step about Publications and Subscriptions. What you need to know now is that you are publishing all the data from the database to the client. This will be removed later as we don't want to publish all the data all the time.
 
-> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step02) 
+> Review: you can check how your code should be at the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step02) 
 
 In the next step we are going to create tasks using a form.
 
