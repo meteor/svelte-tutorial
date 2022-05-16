@@ -2,7 +2,7 @@
 title: "8: Methods"
 ---
 
-Before this step, any user could edit any part of the database making changes directly in the client side. This might be fine for quick prototyping, but real applications need to control access to its data.
+Before this step, any user could edit any part of the database making changes directly on the client side. This might be fine for quick prototyping, but real applications need to control access to its data.
 
 In Meteor, the easiest way to make changes in the server safely is by declaring _methods_, instead of calling `insert`, `update`, or `remove` directly in the client.
 
@@ -24,7 +24,7 @@ We need to remove it, because as the name suggests it is `insecure`.
 meteor remove insecure
 ```
 
-Now your app changes wont work anymore as you have revoked all client-side database permissions. Try to insert a new task for example, you are going to see `insert failed: Access denied` in your browser console.
+Now your app changes won't work anymore as you have revoked all client-side database permissions. Try to insert a new task for example, you are going to see `insert failed: Access denied` in your browser console.
 
 ## 8.2: Add Task Methods
 
@@ -101,7 +101,7 @@ Meteor.methods({
 
 As you can see in the code we are also using the `check` package to make sure we are receiving the expected types of input, this is important to make sure you know exactly what you are inserting or updating in your database.
 
-The last part is to make sure your server is registering these methods, you can do this importing this file, to force the evaluation, in the `server/main.js`.
+The last part is to make sure your server is registering these methods, you can do this by importing this file, to force the evaluation, in the `server/main.js`.
 
 `server/main.js`
 
