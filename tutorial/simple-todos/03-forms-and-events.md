@@ -2,13 +2,13 @@
 title: "3: Forms and Events"
 ---
 
-All apps need to allow the user to perform some types of interaction with the data that is stored. In our case, the first type of interaction we'll need is a new tasks. Without it, our To-Do app wouldn't be very helpful.  
+All apps need to allow the user to perform some type of interaction with the stored data. In our case, the first type of interaction we'll need is a new task. Without it, our To-Do app wouldn't be very helpful.  
 
-One of the main ways in which a user can insert or edit data in a website is through forms. In most cases it is a good idea to use the `<form>` tag since it gives semantic meaning to the elements inside it.
+One of the main ways a user can insert or edit data on a website is through forms. In most cases, using the `<form>` tag is a good idea since it gives semantic meaning to the elements inside it.
 
 ## 3.1: Create Task Form
 
-First we need to create a simple form component to encapsulate our logic.
+First, we need to create a simple form component to encapsulate our logic.
 
 Create a `form` element inside a new file called `TaskForm.svelte` file, and add an input field and a button:
 
@@ -122,6 +122,6 @@ Now your app should look like this:
 
 <img width="200px" src="/simple-todos/assets/step03-new-task-on-list.png"/>
 
-> Review: you can check how your code should be in the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step03) 
+> Review: you can check how your code should be at the end of this step [here](https://github.com/meteor/svelte-tutorial/tree/master/src/simple-todos/step03) 
 
 In the next step we are going to update your tasks state and provide a way for users to remove tasks.
