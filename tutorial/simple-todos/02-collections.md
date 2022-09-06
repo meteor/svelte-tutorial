@@ -37,10 +37,11 @@ You don't need to keep the old content of `server/main.js`.
 import { Meteor } from 'meteor/meteor';
 import { TasksCollection } from '/imports/api/TasksCollection';
 
-const insertTask = taskText => TasksCollection.insert({ text: taskText });
- 
-Meteor.startup(() => {
-  if (TasksCollection.find().count() === 0) {
+const insertTask = async (taskText) =>
+  await TasksCollection.insert({ text: taskText });
+
+Meteor.startup(async () => {
+  if (await TasksCollection.find().countAsync() === 0) {
     [
       'First Task',
       'Second Task',
@@ -48,10 +49,11 @@ Meteor.startup(() => {
       'Fourth Task',
       'Fifth Task',
       'Sixth Task',
-      'Seventh Task'
-    ].forEach(insertTask)
+      'Seventh Task',
+    ].forEach(insertTask);
   }
 });
+
 ```
 
 So you are importing the `TasksCollection` and adding a few tasks to it over an array of strings, and for each string, calling a function to insert this string as our `text` field in our `task` document.
@@ -62,13 +64,15 @@ Now comes the fun part, you will render the tasks saved in our database. With Sv
 
 On your file `App.svelte`, import the `TasksCollection` file and, instead of returning a static array, return the tasks saved in the database. Let's use an extension of the Svelte's [$ reactive statements](https://svelte.dev/docs#3_$_marks_a_statement_as_reactive) feature, to maintain your tasks, called [$m](https://github.com/zodern/melte#tracker-statements):
 
+Because it is an asynchronous function, we need to use the `#await` keyword to wait for the data to be fetched from the database. More information about how Svelte handles asynchronous values can be found [here](https://svelte.dev/docs#template-syntax-await).
+
 `imports/ui/App.svelte`
-```html
+```sveltehtml
 <script>
   import Task from './Task.svelte';
   import { TasksCollection } from '../api/TasksCollection';
-
-  $m: tasks = TasksCollection.find({}).fetch()
+  let getTasks;
+  $m: getTasks = TasksCollection.find({}).fetchAsync()
 </script>
 
 
@@ -77,11 +81,17 @@ On your file `App.svelte`, import the `TasksCollection` file and, instead of ret
     <h1>Todo List</h1>
   </header>
 
-  <ul>
-    {#each tasks as task (task._id)}
-        <Task task={task} />
-    {/each}
-  </ul>
+    {#await getTasks}
+        <p>Loading...</p>
+    {:then tasks}
+        <ul>
+            {#each tasks as task (task._id)}
+                <Task task={task}/>
+            {/each}
+        </ul>
+    {:catch error}
+        <p>{error.message}</p>
+    {/await}
 </div>
 
 ```
