@@ -4,9 +4,9 @@
     export let user = null;
     let newTask = '';
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
       // Insert a task into the collection
-      TasksCollection.insert({
+      await TasksCollection.insertAsync({
         text: newTask,
         createdAt: new Date(), // current time
         userId: user._id,
