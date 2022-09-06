@@ -156,7 +156,7 @@ Now you need to add some elements around your components. Also, we need to apply
 
 `imports/ui/App.svelte`
 
-```html
+```sveltehtml
 ..
 <div class="app">
     <header>
@@ -169,12 +169,17 @@ Now you need to add some elements around your components. Also, we need to apply
 
     <div class="main">
         <TaskForm />
-
-        <ul class="tasks">
-            {#each tasks as task (task._id)}
-                <Task task={task} />
-            {/each}
-        </ul>
+        {#await getTasks}
+            <p>Loading...</p>
+        {:then tasks}
+            <ul class="tasks">
+                {#each tasks as task (task._id)}
+                    <Task task={task}/>
+                {/each}
+            </ul>
+        {:catch error}
+            <p>{error.message}</p>
+        {/await}
     </div>
 </div>
 
