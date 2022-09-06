@@ -10,7 +10,7 @@ First, you need to add a `checkbox` element to your `Task` component:
 
 `imports/ui/Task.svelte`
 
-```html
+```sveltehtml
 <li>
     <input
             type="checkbox"
@@ -34,11 +34,11 @@ Now you can update your task document by toggling its `isChecked` field.
 
   export let task;
 
-  const toggleChecked = () => {
-    // Set the isChecked property to the opposite of its current value
-    TasksCollection.update(task._id, {
-      $set: { isChecked: !task.isChecked }
-    });
+  const toggleChecked = async () => {
+      // Set the checked property to the opposite of its current value
+      await TasksCollection.updateAsync(task._id, {
+          $set: { isChecked: !task.isChecked }
+      });
   };
 </script>
 ..
@@ -78,8 +78,8 @@ Now add the removal logic inside the `<script />` tag. It will be just a new fun
 ```html
 <script>
     ..
-    const deleteThisTask = () => {
-        TasksCollection.remove(task._id);
+    const deleteThisTask = async () => {
+        await TasksCollection.removeAsync(task._id);
     };
 </script>
 ..
