@@ -56,7 +56,7 @@ As we want to receive changes from this publication we are going to `subscribe` 
 
 `imports/ui/App.svelte`
 
-```html
+```sveltehtml
 <script>
     ..
     let isLoading = true;
@@ -73,18 +73,19 @@ As we want to receive changes from this publication we are going to `subscribe` 
             const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
 
 
-            tasks = TasksCollection.find(
-                    hideCompleted ? pendingOnlyFilter : userFilter,
-                    { sort: { createdAt: -1 } }
-            ).fetch();
+            getTasks = user
+                    ? TasksCollection.find(
+                            hideCompleted ? pendingOnlyFilter : userFilter,
+                            { sort: { createdAt: -1 } }
+                    ).fetchAsync()
+                    : [];
 
-            incompleteCount = TasksCollection.find(pendingOnlyFilter).count();
-
-            pendingTasksTitle = `${
-                    incompleteCount ? ` (${incompleteCount})` : ''
-            }`;
+            getCount = user
+                    ? TasksCollection.find(pendingOnlyFilter).countAsync()
+                    : 0;
         }
     }
+    const pendingTitle = (count) => `${count ? ` (${count})` : ''}`;
     ..
 </script>
 ..
@@ -139,42 +140,42 @@ Only the owner of a task should be able to change certain things. You should cha
 
 ```js
 ..
-  'tasks.remove'(taskId) {
-    check(taskId, String);
-
-    if (!this.userId) {
-      throw new Meteor.Error('Not authorized.');
-    }
-
-    const task = TasksCollection.findOne({ _id: taskId, userId: this.userId });
-
-    if (!task) {
-      throw new Meteor.Error('Access denied.');
-    }
-
-    TasksCollection.remove(taskId);
-  },
-
-  'tasks.setIsChecked'(taskId, isChecked) {
-    check(taskId, String);
-    check(isChecked, Boolean);
-
-    if (!this.userId) {
-      throw new Meteor.Error('Not authorized.');
-    }
-
-    const task = TasksCollection.findOne({ _id: taskId, userId: this.userId });
-
-    if (!task) {
-      throw new Meteor.Error('Access denied.');
-    }
-
-    TasksCollection.update(taskId, {
-      $set: {
-        isChecked,
-      },
-    });
-  },
+    async 'tasks.remove'(taskId) {
+      check(taskId, String);
+    
+      if (!this.userId) {
+        throw new Meteor.Error('Not authorized.');
+      }
+    
+      const task = await TasksCollection.findOneAsync({ _id: taskId, userId: this.userId });
+    
+      if (!task) {
+        throw new Meteor.Error('Access denied.');
+      }
+    
+      await TasksCollection.remove(taskId);
+    },
+    
+    async 'tasks.setIsChecked'(taskId, isChecked) {
+      check(taskId, String);
+      check(isChecked, Boolean);
+    
+      if (!this.userId) {
+        throw new Meteor.Error('Not authorized.');
+      }
+    
+      const task = await TasksCollection.findOneAsync({ _id: taskId, userId: this.userId });
+    
+      if (!task) {
+        throw new Meteor.Error('Access denied.');
+      }
+    
+      await TasksCollection.updateAsync(taskId, {
+        $set: {
+          isChecked,
+        },
+      });
+    },
 ..
 ```
 
