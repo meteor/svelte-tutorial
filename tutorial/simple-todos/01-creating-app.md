@@ -12,7 +12,7 @@ Install the latest official Meteor release [following the steps in our docs](htt
 The easiest way to set up Meteor with Svelte is by using the command `meteor create` with the option `--svelte` and your project name:
 
 ```
-meteor create --svelte simple-todos-svelte
+meteor create --svelte simple-todos-svelte --prototype
 ```
 
 After this, Meteor will create all the necessary files for you. 
