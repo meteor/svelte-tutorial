@@ -150,7 +150,7 @@ As you can see, everything is small, as we are not adjusting the view port for m
   <meta http-equiv="x-ua-compatible" content="ie=edge"/>
   <meta
       name="viewport"
-      content="width=device-width, height=device-height, viewport-fit=cover, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+      content="width=device-width, height=device-height, viewport-fit=cover, initial-scale=1, minimum-scale=1
   />
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
