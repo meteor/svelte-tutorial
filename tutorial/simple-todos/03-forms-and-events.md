@@ -27,7 +27,7 @@ Then we can simply add this new form to our `App.svelte` component by first impo
 
 `imports/ui/App.svelte`
 
-```html
+```sveltehtml
 <script>
     import { TasksCollection } from '../api/TasksCollection';
     import Task from './Task.svelte';
@@ -73,9 +73,9 @@ Now we need to add a listener to the `submit` event on the form and create the `
 
     let newTask = '';
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         // Insert a task into the collection
-        TasksCollection.insert({
+        await TasksCollection.insertAsync({
             text: newTask,
             createdAt: new Date(), // current time
         });
@@ -111,7 +111,8 @@ All that is left now is to make one final change: we need to show the newest tas
 ```html
 <script>
   ..
-  $m: tasks = TasksCollection.find({}, { sort: { createdAt: -1 } }).fetch()
+  let getTasks;
+  $m: getTasks = TasksCollection.find({}, { sort: { createdAt: -1 } }).fetchAsync()
 </script>
 ..
 ```

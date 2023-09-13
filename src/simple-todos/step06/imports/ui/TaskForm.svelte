@@ -1,18 +1,18 @@
 <script>
-    import { TasksCollection } from '../api/TasksCollection';
+  import { TasksCollection } from '../api/TasksCollection';
 
-    let newTask = '';
+  let newTask = '';
 
-    const handleSubmit = () => {
-      // Insert a task into the collection
-      TasksCollection.insert({
-        text: newTask,
-        createdAt: new Date(), // current time
-      });
+  const handleSubmit = async () => {
+    // Insert a task into the collection
+    await TasksCollection.insertAsync({
+      text: newTask,
+      createdAt: new Date(), // current time
+    });
 
-      // Clear form
-      newTask = '';
-    }
+    // Clear form
+    newTask = '';
+  }
 </script>
 
 <form class="task-form" on:submit|preventDefault={handleSubmit}>

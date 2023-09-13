@@ -10,9 +10,8 @@
   const hideCompletedFilter = { isChecked: { $ne: true } };
 
 
-  let incompleteCount;
-  let pendingTasksTitle = '';
-  let tasks = [];
+  let getTasks;
+  let getCount;
   let user = null;
 
   $m: {
@@ -22,22 +21,19 @@
     const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
 
 
-    tasks = user
+    getTasks = user
       ? TasksCollection.find(
             hideCompleted ? pendingOnlyFilter : userFilter,
             { sort: { createdAt: -1 } }
-        ).fetch()
+        ).fetchAsync()
       : [];
 
-    incompleteCount = user
-        ? TasksCollection.find(pendingOnlyFilter).count()
+    getCount = user
+        ? TasksCollection.find(pendingOnlyFilter).countAsync()
         : 0;
 
-    pendingTasksTitle = `${
-      incompleteCount ? ` (${incompleteCount})` : ''
-    }`;
   }
-
+  const pendingTitle = (count) => `${count ? ` (${count})` : ''}`;
   const setHideCompleted = value => {
     hideCompleted = value;
   };
@@ -49,7 +45,11 @@
     <header>
         <div class="app-bar">
             <div class="app-header">
-                <h1>📝️ To Do List {pendingTasksTitle}</h1>
+                {#await getCount}
+                    <h1>📝️ To Do List (...)</h1>
+                {:then count}
+                    <h1>📝️ To Do List {pendingTitle(count)}</h1>
+                {/await}
             </div>
         </div>
     </header>
@@ -67,11 +67,17 @@
                     {hideCompleted ? 'Show All' : 'Hide Completed'}
                 </button>
             </div>
-            <ul class="tasks">
-              {#each tasks as task (task._id)}
-                  <Task task={task} />
-              {/each}
-            </ul>
+            {#await getTasks}
+                <p>Loading...</p>
+            {:then tasks}
+                <ul class="tasks">
+                    {#each tasks as task (task._id)}
+                        <Task task={task}/>
+                    {/each}
+                </ul>
+            {:catch error}
+                <p>{error.message}</p>
+            {/await}
         {:else}
             <LoginForm />
         {/if}

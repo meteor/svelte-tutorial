@@ -58,45 +58,46 @@ import { check } from 'meteor/check';
 import { TasksCollection } from './TasksCollection';
  
 Meteor.methods({
-  'tasks.insert'(text) {
+  async 'tasks.insert'(text) {
     check(text, String);
- 
+
     if (!this.userId) {
       throw new Meteor.Error('Not authorized.');
     }
- 
-    TasksCollection.insert({
+
+    await TasksCollection.insertAsync({
       text,
       createdAt: new Date(),
       userId: this.userId,
-    })
+    });
   },
- 
-  'tasks.remove'(taskId) {
+
+  async 'tasks.remove'(taskId) {
     check(taskId, String);
- 
+
     if (!this.userId) {
       throw new Meteor.Error('Not authorized.');
     }
- 
-    TasksCollection.remove(taskId);
+
+    await TasksCollection.removeAsync(taskId);
   },
- 
-  'tasks.setIsChecked'(taskId, isChecked) {
+
+  async 'tasks.setIsChecked'(taskId, isChecked) {
     check(taskId, String);
     check(isChecked, Boolean);
- 
+
     if (!this.userId) {
       throw new Meteor.Error('Not authorized.');
     }
- 
-    TasksCollection.update(taskId, {
+
+    await TasksCollection.updateAsync(taskId, {
       $set: {
-        isChecked
-      }
+        isChecked,
+      },
     });
-  }
+  },
 });
+
 ```
 
 As you can see in the code we are also using the `check` package to make sure we are receiving the expected types of input, this is important to make sure you know exactly what you are inserting or updating in your database.

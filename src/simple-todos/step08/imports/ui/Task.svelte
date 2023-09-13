@@ -5,7 +5,8 @@
     Meteor.call('tasks.setIsChecked', task._id, !task.isChecked);
 
 
-  const deleteThisTask = () => Meteor.call('tasks.remove', task._id);
+  const deleteThisTask = () =>
+    Meteor.call('tasks.remove', task._id);
 </script>
 
 <li>

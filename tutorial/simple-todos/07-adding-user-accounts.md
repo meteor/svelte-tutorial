@@ -36,7 +36,7 @@ import { TasksCollection } from '/imports/api/TasksCollection';
 const SEED_USERNAME = 'meteorite';
 const SEED_PASSWORD = 'password';
 
-Meteor.startup(() => {
+Meteor.startup(async () => {
   if (!Accounts.findUserByUsername(SEED_USERNAME)) {
     Accounts.createUser({
       username: SEED_USERNAME,
@@ -112,7 +112,7 @@ You can get your authenticated user or null from `Meteor.user()`. Then you can v
 
 `imports/ui/App.svelte`
 
-```html
+```sveltehtml
 <script>
     import { TasksCollection } from '../api/TasksCollection';
     import { Meteor } from 'meteor/meteor';
@@ -136,11 +136,17 @@ You can get your authenticated user or null from `Meteor.user()`. Then you can v
                 {hideCompleted ? 'Show All' : 'Hide Completed'}
                 </button>
             </div>
-            <ul class="tasks">
-                {#each tasks as task (task._id)}
-                    <Task task={task} />
-                {/each}
-            </ul>
+            {#await getTasks}
+                <p>Loading...</p>
+            {:then tasks}
+                <ul class="tasks">
+                    {#each tasks as task (task._id)}
+                        <Task task={task}/>
+                    {/each}
+                </ul>
+            {:catch error}
+                <p>{error.message}</p>
+            {/await}
         {:else}
             <LoginForm />
         {/if}
@@ -212,8 +218,8 @@ import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { TasksCollection } from '/imports/api/TasksCollection';
 
-const insertTask = (taskText, user) =>
-  TasksCollection.insert({
+const insertTask = async (taskText, user) =>
+  await TasksCollection.insertAsync({
     text: taskText,
     userId: user._id,
     createdAt: new Date(),
@@ -222,7 +228,7 @@ const insertTask = (taskText, user) =>
 const SEED_USERNAME = 'meteorite';
 const SEED_PASSWORD = 'password';
 
-Meteor.startup(() => {
+Meteor.startup(async () => {
   if (!Accounts.findUserByUsername(SEED_USERNAME)) {
     Accounts.createUser({
       username: SEED_USERNAME,
@@ -232,7 +238,7 @@ Meteor.startup(() => {
 
   const user = Accounts.findUserByUsername(SEED_USERNAME);
 
-  if (TasksCollection.find().count() === 0) {
+  if ( await TasksCollection.find().countAsync() === 0) {
     [
       'First Task',
       'Second Task',
@@ -244,6 +250,7 @@ Meteor.startup(() => {
     ].forEach(taskText => insertTask(taskText, user));
   }
 });
+
 ```
 
 See that we are using a new field called `userId` with our user `_id` field, we are also setting `createdAt` field.
@@ -254,7 +261,7 @@ Now you can filter the tasks in the UI by the authenticated user. Use the user `
 
 `imports/ui/App.svelte`
 
-```html
+```sveltehtml
 <script>
     ..
     $m: {
@@ -264,18 +271,17 @@ Now you can filter the tasks in the UI by the authenticated user. Use the user `
         const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
 
 
-        tasks = user
+        getTasks = user
                 ? TasksCollection.find(
                         hideCompleted ? pendingOnlyFilter : userFilter,
                         { sort: { createdAt: -1 } }
-                ).fetch()
+                ).fetchAsync()
                 : [];
 
-        incompleteCount = user
-                ? TasksCollection.find(pendingOnlyFilter).count()
+        getCount = user
+                ? TasksCollection.find(pendingOnlyFilter).countAsync()
                 : 0;
 
-        ..
     }
 </script>
 
@@ -283,17 +289,23 @@ Now you can filter the tasks in the UI by the authenticated user. Use the user `
     ..
     <div class="main">
         ..
+        {#await getTasks}
+            <p>Loading...</p>
+        {:then tasks}
             <ul class="tasks">
                 {#each tasks as task (task._id)}
-                    <Task task={task} />
+                    <Task task={task}/>
                 {/each}
             </ul>
+        {:catch error}
+            <p>{error.message}</p>
+        {/await}
         ..
     </div>
 </div>
 ```
 
-Also update the `insert` call to include the field `userId` in the `TaskForm`. You should pass the user from the `App` component to the `TaskForm`.
+Also update the `insertAsync` call to include the field `userId` in the `TaskForm`. You should pass the user from the `App` component to the `TaskForm`.
 
 `imports/ui/TaskForm.svelte`
 ```html
@@ -301,9 +313,9 @@ Also update the `insert` call to include the field `userId` in the `TaskForm`. Y
     ..
     export let user = null;
     ..
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         // Insert a task into the collection
-        TasksCollection.insert({
+        await TasksCollection.insertAsync({
             text: newTask,
             createdAt: new Date(), // current time
             userId: user._id,

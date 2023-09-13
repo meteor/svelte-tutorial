@@ -12,7 +12,7 @@ With Svelte this will be a pretty simple task as we don't have to do much to kee
 
 `imports/ui/App.svelte`
 
-```html
+```sveltehtml
 <script>
     ..
     let hideCompleted = false;
@@ -64,9 +64,9 @@ Now, if the user wants to see only pending tasks you can add a filter to your se
     ..
     const hideCompletedFilter = { isChecked: { $ne: true } };
 
-    $m:tasks = TasksCollection.find(
-      hideCompleted ? hideCompletedFilter : {}, { sort: { createdAt: -1 } }
-    ).fetch()
+    $m:getTasks = TasksCollection.find(
+      hideCompleted ? hideCompletedFilter : {}, { sort: { createdAt: -1 },
+    }).fetchAsync();
     ..
 </script>
 ..
@@ -88,7 +88,7 @@ Install it in your Google Chrome browser using this [link](https://chrome.google
 
 ## 6.5: Pending tasks
 
-Update the App component in order to show the number of pending tasks in the app bar.
+Update the App component in order to show the number of pending tasks in the app bar. Remember that your calls to the database are asynchronous, so you need to use the `#await` keyword to get the data.
 
 You should avoid adding zero to your app bar when there are not pending tasks.
 
@@ -97,19 +97,17 @@ You should avoid adding zero to your app bar when there are not pending tasks.
 <script>
     import { TasksCollection } from '../api/TasksCollection';
     ..
-    let incompleteCount;
-    let pendingTasksTitle = '';
-    let tasks = [];
+    let getTasks;
+    let getCount;
 
     $m: {
-        tasks = TasksCollection.find(hideCompleted ? hideCompletedFilter : {}, { sort: { createdAt: -1 } }).fetch()
+        getTasks = TasksCollection.find(hideCompleted ? hideCompletedFilter : {}, {
+            sort: { createdAt: -1 },
+        }).fetchAsync();
 
-        incompleteCount = TasksCollection.find(hideCompletedFilter).count();
-
-        pendingTasksTitle = `${
-                incompleteCount ? ` (${incompleteCount})` : ''
-        }`;
+        getCount = TasksCollection.find(hideCompletedFilter).countAsync();
     }
+    const pendingTitle = (count) => `${count ? ` (${count})` : ''}`;
     ..
 </script>
 
@@ -117,7 +115,11 @@ You should avoid adding zero to your app bar when there are not pending tasks.
     <header>
         <div class="app-bar">
             <div class="app-header">
-                <h1>📝️ To Do List {pendingTasksTitle}</h1>
+                {#await getCount}
+                <h1>📝️ To Do List (...)</h1>
+                {:then count}
+                <h1>📝️ To Do List {pendingTitle(count)}</h1>
+                {/await}
             </div>
         </div>
     </header>
