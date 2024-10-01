@@ -3,7 +3,8 @@
   import Task from './Task.svelte';
   import TaskForm from './TaskForm.svelte';
 
-  $m: tasks = TasksCollection.find({}, { sort: { createdAt: -1 } }).fetch()
+  let getTasks;
+  $m: getTasks = TasksCollection.find({}, { sort: { createdAt: -1 } }).fetchAsync()
 </script>
 
 
@@ -18,11 +19,16 @@
 
     <div class="main">
         <TaskForm />
-
-        <ul class="tasks">
-          {#each tasks as task (task._id)}
-              <Task task={task} />
-          {/each}
-        </ul>
+        {#await getTasks}
+            <p>Loading...</p>
+        {:then tasks}
+            <ul class="tasks">
+                {#each tasks as task (task._id)}
+                    <Task task={task}/>
+                {/each}
+            </ul>
+        {:catch error}
+            <p>{error.message}</p>
+        {/await}
     </div>
 </div>

@@ -6,20 +6,18 @@
   let hideCompleted = false;
 
   const hideCompletedFilter = { isChecked: { $ne: true } };
-
-  let incompleteCount;
-  let pendingTasksTitle = '';
-  let tasks = [];
+  let getTasks;
+  let getCount;
 
   $m: {
-    tasks = TasksCollection.find(hideCompleted ? hideCompletedFilter : {}, {
+    getTasks = TasksCollection.find(hideCompleted ? hideCompletedFilter : {}, {
       sort: { createdAt: -1 },
-    }).fetch();
+    }).fetchAsync();
 
-    incompleteCount = TasksCollection.find(hideCompletedFilter).count();
-
-    pendingTasksTitle = `${incompleteCount ? ` (${incompleteCount})` : ''}`;
+    getCount = TasksCollection.find(hideCompletedFilter).countAsync();
   }
+
+  const pendingTitle = (count) => `${count ? ` (${count})` : ''}`;
 
   const setHideCompleted = (value) => {
     hideCompleted = value;
@@ -30,7 +28,11 @@
   <header>
     <div class="app-bar">
       <div class="app-header">
-        <h1>📝️ To Do List {pendingTasksTitle}</h1>
+        {#await getCount}
+            <h1>📝️ To Do List (...)</h1>
+            {:then count}
+            <h1>📝️ To Do List {pendingTitle(count)}</h1>
+        {/await}
       </div>
     </div>
   </header>
@@ -42,10 +44,16 @@
         {hideCompleted ? 'Show All' : 'Hide Completed'}
       </button>
     </div>
-    <ul class="tasks">
-      {#each tasks as task (task._id)}
-        <Task task={task} />
-      {/each}
-    </ul>
+    {#await getTasks}
+      <p>Loading...</p>
+    {:then tasks}
+      <ul class="tasks">
+        {#each tasks as task (task._id)}
+          <Task task={task}/>
+        {/each}
+      </ul>
+    {:catch error}
+      <p>{error.message}</p>
+    {/await}
   </div>
 </div>
